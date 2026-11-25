@@ -3,1127 +3,472 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Smart E-Waste Collection Portal | Chengalpattu</title>
+<title>Smart E-Waste Collection Portal | Chengalpattu District</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  :root {
-    --bg-primary: #0a0f1e;
-    --bg-secondary: #111827;
-    --bg-card: rgba(17,24,39,0.85);
-    --border: rgba(255,255,255,0.08);
-    --accent-green: #22c55e;
-    --accent-cyan: #06b6d4;
-    --accent-amber: #f59e0b;
-    --accent-red: #ef4444;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --status-pending: #f59e0b;
-    --status-collected: #22c55e;
-    --glass-bg: rgba(255,255,255,0.04);
-    --glass-border: rgba(255,255,255,0.10);
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(6,182,212,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(34,197,94,0.06) 0%, transparent 60%);
-  }
-
-  /* DEMO BANNER */
-  .demo-banner {
-    background: linear-gradient(90deg, #06b6d4 0%, #22c55e 100%);
-    text-align: center;
-    padding: 10px 20px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #0a0f1e;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  /* HEADER */
-  header {
-    background: rgba(10,15,30,0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 32px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .header-logo {
-    width: 44px; height: 44px;
-    background: linear-gradient(135deg, #22c55e, #06b6d4);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-  }
-  .header-title h1 { font-size: 1.25rem; font-weight: 700; }
-  .header-title p { font-size: 0.78rem; color: var(--text-secondary); margin-top:2px; }
-
-  /* NAV TABS */
-  .nav-tabs {
-    display: flex;
-    gap: 4px;
-    padding: 16px 32px 0;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,15,30,0.6);
-  }
-  .nav-tab {
-    padding: 10px 24px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 10px 10px 0 0;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
-  .nav-tab:hover { color: var(--text-primary); background: var(--glass-bg); }
-  .nav-tab.active {
-    color: var(--accent-cyan);
-    background: var(--glass-bg);
-    border-bottom: 2px solid var(--accent-cyan);
-  }
-  .admin-badge {
-    background: linear-gradient(90deg, #f59e0b, #ef4444);
-    color: #0a0f1e;
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 1px;
-  }
-
-  /* MAIN CONTENT */
-  .main {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 28px 24px;
-  }
-
-  /* SECTION TITLE */
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-title i { color: var(--accent-cyan); }
-
-  /* GLASS CARD */
-  .glass-card {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 28px;
-    backdrop-filter: blur(16px);
-    margin-bottom: 28px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.3);
-  }
-
-  /* FORM STYLES */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 18px;
-  }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-group label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    color: var(--text-primary);
-    padding: 11px 14px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    font-family: inherit;
-  }
-  .form-group textarea { resize: vertical; min-height: 80px; }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 0 3px rgba(6,182,212,0.12);
-  }
-  .form-group input.error,
-  .form-group select.error,
-  .form-group textarea.error {
-    border-color: var(--accent-red) !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.12) !important;
-  }
-  .form-group select option { background: #111827; }
-
-  /* BUTTONS */
-  .btn {
-    padding: 11px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #0a0f1e;
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
-  .btn-cyan {
-    background: linear-gradient(135deg, #06b6d4, #0891b2);
-    color: #0a0f1e;
-  }
-  .btn-cyan:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(6,182,212,0.35); }
-  .btn-amber {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #0a0f1e;
-  }
-  .btn-amber:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,158,11,0.35); }
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
-  }
-  .btn-outline:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-
-  /* TRACK SECTION */
-  .track-row {
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-    margin-bottom: 24px;
-  }
-  .track-row .form-group { flex: 1; max-width: 320px; }
-
-  /* TABLES */
-  .table-wrap { overflow-x: auto; border-radius: 12px; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.87rem;
-  }
-  thead th {
-    background: rgba(6,182,212,0.12);
-    color: var(--accent-cyan);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 12px 14px;
-    text-align: left;
-    white-space: nowrap;
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-  tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-  tbody tr:hover { background: rgba(6,182,212,0.06); }
-  tbody tr.collected { background: rgba(34,197,94,0.06) !important; }
-  tbody td { padding: 11px 14px; color: var(--text-secondary); }
-  tbody td strong { color: var(--text-primary); }
-
-  /* BADGES */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-  .badge-pending { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-  .badge-collected { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
-  .badge-score {
-    background: rgba(6,182,212,0.15);
-    color: #06b6d4;
-    border: 1px solid rgba(6,182,212,0.3);
-    font-weight: 800;
-  }
-
-  /* ROUTE CARDS */
-  .route-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-  .route-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    padding: 20px;
-  }
-  .route-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .driver-avatar {
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, #06b6d4, #22c55e);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    color: #0a0f1e;
-    flex-shrink: 0;
-  }
-  .route-meta { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-  .route-meta-item { font-size: 0.8rem; color: var(--text-secondary); }
-  .route-meta-item span { color: var(--text-primary); font-weight: 700; }
-  .route-stops { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-  .route-stop {
-    background: rgba(6,182,212,0.12);
-    border: 1px solid rgba(6,182,212,0.25);
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 0.78rem;
-    color: var(--accent-cyan);
-  }
-  .route-center {
-    background: rgba(34,197,94,0.12);
-    border: 1px solid rgba(34,197,94,0.25);
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 0.78rem;
-    color: var(--accent-green);
-    font-weight: 700;
-  }
-  .route-arrow { color: var(--text-secondary); font-size: 0.85rem; }
-  .stop-detail {
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    padding: 8px 12px;
-    margin-bottom: 6px;
-    font-size: 0.82rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .stop-detail-left { display: flex; flex-direction: column; gap: 2px; }
-  .stop-idx {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 20px; height: 20px;
-    background: var(--accent-cyan);
-    color: #0a0f1e;
-    border-radius: 50%;
-    font-size: 0.7rem;
-    font-weight: 800;
-    margin-right: 6px;
-    flex-shrink: 0;
-  }
-
-  /* PLANNER INPUTS */
-  .planner-row {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .planner-row .form-group { min-width: 180px; }
-
-  /* IMPACT CHART */
-  .chart-wrap {
-    position: relative;
-    height: 280px;
-    margin-bottom: 20px;
-  }
-  .impact-stats {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .impact-stat {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 16px 22px;
-    flex: 1;
-    min-width: 200px;
-  }
-  .impact-stat-label { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; }
-  .impact-stat-value { font-size: 1.4rem; font-weight: 800; }
-  .impact-stat-value.green { color: var(--accent-green); }
-  .impact-stat-value.cyan { color: var(--accent-cyan); }
-
-  /* TOAST */
-  #toast-container {
-    position: fixed;
-    top: 70px;
-    right: 24px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .toast {
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.88rem;
-    min-width: 280px;
-    max-width: 380px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: slideIn 0.3s ease;
-  }
-  .toast.success { border-left: 3px solid var(--accent-green); }
-  .toast.error { border-left: 3px solid var(--accent-red); }
-  .toast i.success { color: var(--accent-green); font-size: 1.1rem; }
-  .toast i.error { color: var(--accent-red); font-size: 1.1rem; }
-  @keyframes slideIn {
-    from { transform: translateX(120%); opacity: 0; }
-    to   { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to   { transform: translateX(120%); opacity: 0; }
-  }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 48px 20px;
-    color: var(--text-secondary);
-  }
-  .empty-state i { font-size: 3rem; margin-bottom: 14px; opacity: 0.4; }
-  .empty-state p { font-size: 0.95rem; }
-
-  /* SUMMARY CARDS */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .summary-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .summary-icon {
-    width: 46px; height: 46px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-  .summary-icon.green { background: rgba(34,197,94,0.15); color: var(--accent-green); }
-  .summary-icon.cyan  { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
-  .summary-icon.amber { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
-  .summary-icon.red   { background: rgba(239,68,68,0.15); color: var(--accent-red); }
-  .summary-text {}
-  .summary-value { font-size: 1.6rem; font-weight: 800; }
-  .summary-label { font-size: 0.75rem; color: var(--text-secondary); }
-
-  /* SECTION DIVIDER */
-  .section-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 8px 0 28px;
-  }
-
-  /* HIDDEN */
-  .hidden { display: none !important; }
-
-  /* RESPONSIVE */
-  @media (max-width: 680px) {
-    .main { padding: 16px 12px; }
-    header { padding: 14px 16px; }
-    .nav-tabs { padding: 12px 12px 0; }
-    .nav-tab { padding: 8px 14px; font-size: 0.82rem; }
-    .glass-card { padding: 18px 14px; }
-  }
-</style>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- Leaflet (OpenStreetMap, no API key) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Project CSS -->
+<link rel="stylesheet" href="style.css"/>
+<!-- Data seed -->
+<script src="data.js"></script>
 </head>
 <body>
 
-<!-- DEMO BANNER -->
+<!-- ══ DEMO RIBBON ═══════════════════════════════════════════ -->
 <div class="demo-banner">
-  ♻ Smart E-Waste Collection Portal &nbsp;|&nbsp; Hackathon P01 — Chengalpattu District &nbsp;|&nbsp; DEMO
+  ♻ Smart E-Waste Portal &nbsp;|&nbsp; Smart Cities Hackathon &nbsp;|&nbsp;
+  <span style="font-weight:400;text-transform:none;letter-spacing:0;">All data shown is <strong>Demo data</strong> (sample / simulated)</span>
+  &nbsp;|&nbsp;
+  <button onclick="resetDemoData()">↺ Reset Demo Data</button>
 </div>
 
-<!-- HEADER -->
+<!-- ══ HEADER ════════════════════════════════════════════════ -->
 <header>
   <div class="header-logo"><i class="fa-solid fa-recycle"></i></div>
   <div class="header-title">
     <h1>Smart E-Waste Collection Portal</h1>
-    <p>Chengalpattu District &nbsp;·&nbsp; Sustainable Future Initiative</p>
+    <p>Chengalpattu District &nbsp;·&nbsp; Sustainable Future Initiative — Smart Cities</p>
+  </div>
+  <div class="header-right">
+    <!-- Language Toggle -->
+    <button class="lang-toggle" id="lang-btn" onclick="toggleLang()">தமிழ்</button>
+    <!-- Role Selector -->
+    <div class="role-selector">
+      <label><i class="fa-solid fa-user-tag"></i> Demo Role:</label>
+      <select id="role-select">
+        <option value="citizen">👤 Citizen</option>
+        <option value="ngo">🤝 NGO Admin</option>
+        <option value="driver">🚛 Driver</option>
+        <option value="authority">🏛 District Authority</option>
+      </select>
+    </div>
   </div>
 </header>
 
-<!-- NAV TABS -->
-<div class="nav-tabs">
-  <button class="nav-tab active" onclick="switchTab('user')" id="tab-user">
-    <i class="fa-solid fa-user"></i> User Portal
+<!-- ══ NAV TABS ══════════════════════════════════════════════ -->
+<div class="nav-tabs" id="nav-tabs">
+  <button class="nav-tab" data-tab="home"        onclick="switchTab('home')"       id="tab-home">
+    <i class="fa-solid fa-house"></i> Home
   </button>
-  <button class="nav-tab" onclick="switchTab('admin')" id="tab-admin">
-    <i class="fa-solid fa-shield-halved"></i> Admin Dashboard
+  <button class="nav-tab" data-tab="citizen"     onclick="switchTab('citizen')"    id="tab-citizen">
+    <i class="fa-solid fa-user"></i> Citizen Portal
+  </button>
+  <button class="nav-tab" data-tab="ngo"         onclick="switchTab('ngo')"        id="tab-ngo">
+    <i class="fa-solid fa-handshake"></i> NGO Admin
     <span class="admin-badge">ADMIN</span>
+  </button>
+  <button class="nav-tab" data-tab="driver"      onclick="switchTab('driver')"     id="tab-driver">
+    <i class="fa-solid fa-truck-fast"></i> Driver
+  </button>
+  <button class="nav-tab" data-tab="authority"   onclick="switchTab('authority')"  id="tab-authority">
+    <i class="fa-solid fa-landmark"></i> District Authority
+    <span class="admin-badge">ADMIN</span>
+  </button>
+  <button class="nav-tab" data-tab="leaderboard" onclick="switchTab('leaderboard')" id="tab-leaderboard">
+    <i class="fa-solid fa-trophy"></i> Leaderboard
   </button>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- ══ TOAST ══════════════════════════════════════════════════ -->
 <div id="toast-container"></div>
 
-<!-- MAIN -->
+<!-- ══ MAIN ═══════════════════════════════════════════════════ -->
 <div class="main">
 
-  <!-- ===================== USER PORTAL ===================== -->
-  <div id="panel-user">
+<!-- ════════════════════════════════════════════════════════════
+     HOME PAGE
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-home" class="hidden">
 
-    <!-- REQUEST PICKUP FORM -->
-    <div class="glass-card">
-      <div class="section-title"><i class="fa-solid fa-truck-fast"></i> Request E-Waste Pickup</div>
-      <form id="pickup-form" onsubmit="submitPickup(event)">
-        <div class="form-grid">
-          <div class="form-group">
-            <label><i class="fa-solid fa-user-pen"></i> Full Name</label>
-            <input type="text" id="f-name" placeholder="e.g. Muruganantham S" autocomplete="off"/>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-phone"></i> Phone Number</label>
-            <input type="tel" id="f-phone" placeholder="10-digit mobile" maxlength="10" autocomplete="off"/>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-location-dot"></i> Area</label>
-            <select id="f-area">
-              <option value="">— Select Area —</option>
-              <option value="Chengalpattu Town">Chengalpattu Town</option>
-              <option value="Maraimalai Nagar">Maraimalai Nagar</option>
-              <option value="Vandalur">Vandalur</option>
-              <option value="Guduvanchery">Guduvanchery</option>
-              <option value="Tambaram">Tambaram</option>
-              <option value="Perungalathur">Perungalathur</option>
-              <option value="Pallavaram">Pallavaram</option>
-              <option value="Urapakkam">Urapakkam</option>
-              <option value="Singaperumal Koil">Singaperumal Koil</option>
-              <option value="Kancheepuram">Kancheepuram</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-mobile-screen-button"></i> E-Waste Type</label>
-            <select id="f-type">
-              <option value="">— Select Type —</option>
-              <option value="Phones & Tablets">Phones &amp; Tablets</option>
-              <option value="Computers & Laptops">Computers &amp; Laptops</option>
-              <option value="Batteries">Batteries</option>
-              <option value="Televisions & Monitors">Televisions &amp; Monitors</option>
-              <option value="Home Appliances">Home Appliances</option>
-              <option value="Mixed E-Waste">Mixed E-Waste</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-weight-scale"></i> Quantity (kg)</label>
-            <input type="number" id="f-qty" min="0.5" step="0.5" placeholder="e.g. 5.0"/>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-calendar-days"></i> Preferred Date</label>
-            <input type="date" id="f-date"/>
-          </div>
-          <div class="form-group">
-            <label><i class="fa-solid fa-clock"></i> Preferred Time</label>
-            <select id="f-time">
-              <option value="">— Select Time —</option>
-              <option value="Morning 8–12">Morning 8–12</option>
-              <option value="Afternoon 12–4">Afternoon 12–4</option>
-              <option value="Evening 4–7">Evening 4–7</option>
-            </select>
-          </div>
-          <div class="form-group full">
-            <label><i class="fa-solid fa-map-pin"></i> Full Address</label>
-            <textarea id="f-address" placeholder="Door No, Street, Landmark..."></textarea>
-          </div>
-        </div>
-        <div style="margin-top:20px;">
-          <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-paper-plane"></i> Request Pickup
-          </button>
-        </div>
-      </form>
-    </div>
+  <!-- Problem Statement Banner -->
+  <div class="problem-banner">
+    <h2><i class="fa-solid fa-triangle-exclamation"></i> Problem Statement</h2>
+    <p class="problem-text">
+      Most households in Chennai and its surrounding districts have <strong>no convenient way to dispose of e-waste</strong>,
+      so much of it goes to the unregulated informal sector or into household trash, and authorities have
+      <strong>no verified area-wise data</strong>. Our platform connects citizens with NGO collection partners
+      for doorstep pickup with driver tracking, routes e-waste to authorized facilities, gives each district
+      a portal with verified data, and <strong>rewards top contributors every two months</strong>.
+    </p>
+  </div>
 
-    <!-- TRACK REQUESTS -->
-    <div class="glass-card">
-      <div class="section-title"><i class="fa-solid fa-magnifying-glass"></i> Track My Requests</div>
-      <div class="track-row">
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="t-phone" placeholder="Enter your 10-digit mobile" maxlength="10"/>
-        </div>
-        <button class="btn btn-cyan" onclick="trackRequests()">
-          <i class="fa-solid fa-search"></i> Track
-        </button>
+  <!-- 3 Key Facts -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-chart-bar"></i> Key Facts</div>
+    <div class="facts-row">
+      <div class="fact-card">
+        <div class="fact-num">43.6%</div>
+        <div class="fact-text">of Chennai residents surveyed cited <strong>convenience</strong> as the main factor in how they dispose of e-waste — the top reason given.</div>
+        <div class="fact-src">Source: Laksha et al., IJISRT, 2026 survey of 110 residents</div>
       </div>
-      <div id="track-results"></div>
+      <div class="fact-card">
+        <div class="fact-num">28,305 T</div>
+        <div class="fact-text">Tamil Nadu generated <strong>28,305.89 tonnes</strong> of e-waste in 2020–21, one of the highest in India.</div>
+        <div class="fact-src">Source: Tamil Nadu Pollution Control Board (TNPCB), 2020–21</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-num">Informal</div>
+        <div class="fact-text">Most domestic e-waste in Chennai is handled by the <strong>informal sector</strong>, with little regulation or safe processing.</div>
+        <div class="fact-src">Source: Citizen Matters, 2022 report</div>
+      </div>
     </div>
+  </div>
 
-  </div><!-- end user panel -->
-
-  <!-- ===================== ADMIN DASHBOARD ===================== -->
-  <div id="panel-admin" class="hidden">
-
-    <!-- SUMMARY CARDS -->
-    <div class="summary-grid" id="summary-grid"></div>
-
-    <!-- ALL REQUESTS TABLE -->
-    <div class="glass-card">
-      <div class="section-title"><i class="fa-solid fa-table-list"></i> All Requests (Priority Sorted)</div>
-      <div class="table-wrap" id="admin-table-wrap"></div>
+  <!-- How It Works -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-list-ol"></i> How It Works</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-title">Citizen Requests Pickup</div>
+        <div class="how-desc">Fill in your details, upload a photo, confirm data wipe, and submit. Optionally join a ward batch day to reduce costs.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-title">NGO Assigns Driver</div>
+        <div class="how-desc">An NGO partner reviews the request, assigns a verified driver, and plans the optimal pickup route.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-title">Driver Picks Up & Delivers</div>
+        <div class="how-desc">The driver accepts the job, picks up e-waste at your doorstep, and delivers it to an authorised facility. You can track the driver live.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-title">Facility Verifies & Rewards</div>
+        <div class="how-desc">Facility staff weigh the batch and record verified kg. District authority sees area-wise data and top contributors earn rewards.</div>
+      </div>
     </div>
+  </div>
 
-    <!-- PICKUP PLANNER -->
-    <div class="glass-card">
-      <div class="section-title"><i class="fa-solid fa-route"></i> Pickup Route Planner</div>
-      <div class="planner-row">
+  <!-- Quick CTA -->
+  <div class="glass-card" style="text-align:center;padding:32px;">
+    <i class="fa-solid fa-recycle" style="font-size:2.5rem;color:var(--accent-cyan);margin-bottom:14px;display:block;"></i>
+    <h3 style="margin-bottom:10px;">Ready to dispose e-waste responsibly?</h3>
+    <p style="color:var(--text-secondary);margin-bottom:20px;font-size:0.9rem;">Select <strong>Citizen</strong> in the role dropdown to get started.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('role-select').value='citizen';currentRole='citizen';updateRoleView();">
+      <i class="fa-solid fa-truck-fast"></i> Request Pickup Now
+    </button>
+  </div>
+
+</div><!-- /panel-home -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CITIZEN PORTAL
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-citizen" class="hidden">
+
+  <!-- Citizen Rewards -->
+  <div id="citizen-rewards"></div>
+
+  <!-- Request Pickup -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-truck-fast"></i> <span id="tab-label-request">Request E-Waste Pickup</span></div>
+    <div class="wipe-reminder">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span id="lbl-wipe">Please wipe your data before handing over devices. Factory reset phones, format hard drives, and delete personal files from all items.</span>
+    </div>
+    <form id="pickup-form" onsubmit="submitPickup(event)" style="margin-top:16px;">
+      <div class="form-grid">
         <div class="form-group">
-          <label>Number of Drivers</label>
-          <input type="number" id="p-drivers" min="1" max="10" value="3"/>
+          <label id="lbl-name"><i class="fa-solid fa-user-pen"></i> Full Name</label>
+          <input type="text" id="f-name" placeholder="e.g. Muruganantham S" autocomplete="off"/>
         </div>
         <div class="form-group">
-          <label>Truck Capacity (kg)</label>
-          <input type="number" id="p-capacity" min="50" max="2000" step="50" value="200"/>
+          <label id="lbl-phone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+          <input type="tel" id="f-phone" placeholder="10-digit mobile" maxlength="10" autocomplete="off"/>
         </div>
-        <button class="btn btn-cyan" onclick="planRoutes()">
-          <i class="fa-solid fa-map-location-dot"></i> Plan Routes
-        </button>
-        <button class="btn btn-amber" onclick="markCollected()">
-          <i class="fa-solid fa-circle-check"></i> Mark Planned Pickups as Collected
+        <div class="form-group">
+          <label id="lbl-area"><i class="fa-solid fa-location-dot"></i> Area</label>
+          <select id="f-area">
+            <option value="">— Select Area —</option>
+            <option value="Chengalpattu Town">Chengalpattu Town</option>
+            <option value="Maraimalai Nagar">Maraimalai Nagar</option>
+            <option value="Vandalur">Vandalur</option>
+            <option value="Guduvanchery">Guduvanchery</option>
+            <option value="Tambaram">Tambaram</option>
+            <option value="Perungalathur">Perungalathur</option>
+            <option value="Pallavaram">Pallavaram</option>
+            <option value="Urapakkam">Urapakkam</option>
+            <option value="Singaperumal Koil">Singaperumal Koil</option>
+            <option value="Kancheepuram">Kancheepuram</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lbl-type"><i class="fa-solid fa-mobile-screen-button"></i> E-Waste Type</label>
+          <select id="f-type">
+            <option value="">— Select Type —</option>
+            <option value="Phones &amp; Tablets">Phones &amp; Tablets</option>
+            <option value="Computers &amp; Laptops">Computers &amp; Laptops</option>
+            <option value="Batteries">Batteries</option>
+            <option value="Televisions &amp; Monitors">Televisions &amp; Monitors</option>
+            <option value="Home Appliances">Home Appliances</option>
+            <option value="Mixed E-Waste">Mixed E-Waste</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lbl-qty"><i class="fa-solid fa-weight-scale"></i> Quantity (kg)</label>
+          <input type="number" id="f-qty" min="0.5" step="0.5" placeholder="e.g. 5.0"/>
+        </div>
+        <div class="form-group">
+          <label id="lbl-date"><i class="fa-solid fa-calendar-days"></i> Preferred Date</label>
+          <input type="date" id="f-date"/>
+        </div>
+        <div class="form-group">
+          <label id="lbl-time"><i class="fa-solid fa-clock"></i> Preferred Time</label>
+          <select id="f-time">
+            <option value="">— Select Time —</option>
+            <option value="Morning 8–12">Morning 8–12</option>
+            <option value="Afternoon 12–4">Afternoon 12–4</option>
+            <option value="Evening 4–7">Evening 4–7</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lbl-photo"><i class="fa-solid fa-camera"></i> Upload Photo (optional)</label>
+          <input type="file" id="f-photo" accept="image/*" onchange="handlePhotoUpload(this)" style="padding:8px;"/>
+          <img id="photo-preview" alt="Preview"/>
+        </div>
+        <div class="form-group full">
+          <label id="lbl-address"><i class="fa-solid fa-map-pin"></i> Full Address</label>
+          <textarea id="f-address" placeholder="Door No, Street, Landmark..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="check-row">
+            <input type="checkbox" id="f-wipe"/>
+            <span>I confirm I have wiped/factory-reset my devices before this pickup</span>
+          </label>
+        </div>
+        <div class="form-group full">
+          <label class="check-row">
+            <input type="checkbox" id="f-batch"/>
+            <span id="lbl-batch">Join Ward Batch Pickup Day (reduce delivery cost)</span>
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:18px;">
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          <i class="fa-solid fa-paper-plane"></i> Request Pickup
         </button>
       </div>
-      <div id="route-output"></div>
-    </div>
+    </form>
+  </div>
 
-    <!-- IMPACT CHART -->
-    <div class="glass-card">
-      <div class="section-title"><i class="fa-solid fa-chart-line"></i> Impact Wave Graph — Last 7 Days</div>
-      <div class="chart-wrap">
-        <canvas id="impact-chart"></canvas>
+  <!-- Track Requests -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-magnifying-glass"></i> Track My Requests</div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px;">
+      Enter your phone number to see status timeline, driver info, ETA, and live driver map.
+      <span style="color:var(--accent-amber);">(Demo: try <strong>9876543210</strong> or <strong>9823456780</strong>)</span>
+    </p>
+    <div class="track-row">
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="t-phone" placeholder="10-digit mobile" maxlength="10"/>
       </div>
-      <div class="impact-stats" id="impact-stats"></div>
+      <button class="btn btn-cyan" id="track-btn" onclick="trackRequests()">
+        <i class="fa-solid fa-search"></i> Track
+      </button>
     </div>
+    <div id="track-results"></div>
+  </div>
 
-  </div><!-- end admin panel -->
+</div><!-- /panel-citizen -->
 
-</div><!-- end main -->
 
-<script>
-// ─────────────────────────────────────────────
-// DATA: Area coordinates
-// ─────────────────────────────────────────────
-const AREAS = {
-  "Chengalpattu Town":  { lat: 12.6919, lng: 79.9762 },
-  "Maraimalai Nagar":   { lat: 12.7953, lng: 80.0256 },
-  "Vandalur":           { lat: 12.9217, lng: 80.0786 },
-  "Guduvanchery":       { lat: 12.8454, lng: 79.9897 },
-  "Tambaram":           { lat: 12.9249, lng: 80.1000 },
-  "Perungalathur":      { lat: 12.8882, lng: 80.0769 },
-  "Pallavaram":         { lat: 12.9675, lng: 80.1507 },
-  "Urapakkam":          { lat: 12.8743, lng: 80.0590 },
-  "Singaperumal Koil":  { lat: 12.7602, lng: 79.9584 },
-  "Kancheepuram":       { lat: 12.8342, lng: 79.7034 }
-};
-const CENTER = { lat: 12.6919, lng: 79.9762, name: "Recycling Center" };
+<!-- ════════════════════════════════════════════════════════════
+     NGO ADMIN
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-ngo" class="hidden">
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
-function today()   { return new Date().toISOString().split('T')[0]; }
-function addDays(d, n) {
-  const dt = new Date(d);
-  dt.setDate(dt.getDate() + n);
-  return dt.toISOString().split('T')[0];
-}
-function diffDays(a, b) {
-  return Math.round((new Date(a) - new Date(b)) / 86400000);
-}
-function haversine(a, b) {
-  const R = 6371;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
-}
-let idCounter = 12; // pre-loaded 12 demo
-function genId() { idCounter++; return 'EW-' + String(idCounter).padStart(3,'0'); }
+  <!-- Summary -->
+  <div class="summary-grid" id="ngo-summary"></div>
 
-// ─────────────────────────────────────────────
-// PRIORITY SCORE
-// ─────────────────────────────────────────────
-function priorityScore(req) {
-  const td = today();
-  const diff = diffDays(req.date, td);
-  let dateScore = diff === 0 ? 30 : diff === 1 ? 24 : diff <= 3 ? 18 : diff <= 7 ? 12 : 6;
-  let battBonus = req.type === 'Batteries' ? 20 : 0;
-  return Math.min(req.qty, 50) + dateScore + battBonus;
-}
-
-// ─────────────────────────────────────────────
-// DEMO DATA (12 requests)
-// ─────────────────────────────────────────────
-const td = today();
-let requests = [
-  { id:'EW-001', name:'Muruganantham S', phone:'9876543210', area:'Tambaram',          address:'14, Gandhi Nagar, 3rd Cross', type:'Computers & Laptops', qty:18, date:addDays(td,0), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-002', name:'Kavitha R',       phone:'9823456780', area:'Pallavaram',         address:'7, Anna Salai, Flat 3B',      type:'Batteries',           qty:12, date:addDays(td,1), time:'Afternoon 12–4', status:'Pending' },
-  { id:'EW-003', name:'Senthilkumar P',  phone:'9734512309', area:'Vandalur',           address:'22, Nehru St, Near Park',     type:'Home Appliances',     qty:35, date:addDays(td,2), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-004', name:'Priya Lakshmi',   phone:'9612345678', area:'Guduvanchery',       address:'5B, LIG Colony, Block 2',     type:'Phones & Tablets',    qty:6,  date:addDays(td,1), time:'Evening 4–7',     status:'Pending' },
-  { id:'EW-005', name:'Anbalagan M',     phone:'9500123456', area:'Maraimalai Nagar',   address:'Plot 9, Rajiv Nagar',         type:'Batteries',           qty:20, date:addDays(td,0), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-006', name:'Deepa Selvi',     phone:'9445678901', area:'Urapakkam',          address:'12, Teachers Colony',         type:'Televisions & Monitors', qty:40, date:addDays(td,3), time:'Afternoon 12–4', status:'Pending' },
-  { id:'EW-007', name:'Rajendran K',     phone:'9345678012', area:'Perungalathur',      address:'8, Patel Rd, 1st Lane',       type:'Mixed E-Waste',       qty:15, date:addDays(td,2), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-008', name:'Sumathi V',       phone:'9234560123', area:'Singaperumal Koil',  address:'3, Vel Nagar, East St',       type:'Batteries',           qty:8,  date:addDays(td,1), time:'Evening 4–7',     status:'Pending' },
-  { id:'EW-009', name:'Karthikeyan J',   phone:'9123456780', area:'Kancheepuram',       address:'17, Sivaganga St, Old Town',  type:'Home Appliances',     qty:50, date:addDays(td,4), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-010', name:'Meenakshi A',     phone:'9012345678', area:'Tambaram',           address:'45, Bharathi Nagar, 5th Cross', type:'Phones & Tablets', qty:5,  date:addDays(td,5), time:'Afternoon 12–4', status:'Pending' },
-  { id:'EW-011', name:'Velmurugan D',    phone:'8998765432', area:'Pallavaram',         address:'2, Sri Nagar, Cross Rd',      type:'Computers & Laptops', qty:22, date:addDays(td,3), time:'Morning 8–12',    status:'Pending' },
-  { id:'EW-012', name:'Saranya T',       phone:'8887654321', area:'Vandalur',           address:'10, Lotus Nagar, 2nd St',     type:'Mixed E-Waste',       qty:9,  date:addDays(td,6), time:'Evening 4–7',     status:'Pending' },
-];
-
-let assignedIds = new Set(); // ids assigned in last planned routes
-
-// ─────────────────────────────────────────────
-// TAB SWITCHING
-// ─────────────────────────────────────────────
-function switchTab(tab) {
-  document.getElementById('panel-user').classList.toggle('hidden', tab !== 'user');
-  document.getElementById('panel-admin').classList.toggle('hidden', tab !== 'admin');
-  document.getElementById('tab-user').classList.toggle('active', tab === 'user');
-  document.getElementById('tab-admin').classList.toggle('active', tab === 'admin');
-  if (tab === 'admin') { renderAdmin(); }
-}
-
-// ─────────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────────
-function showToast(msg, type='success') {
-  const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark';
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<i class="fa-solid ${icon} ${type}"></i><span>${msg}</span>`;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => {
-    el.style.animation = 'slideOut 0.3s ease forwards';
-    setTimeout(() => el.remove(), 300);
-  }, 3200);
-}
-
-// ─────────────────────────────────────────────
-// FORM VALIDATION & SUBMISSION
-// ─────────────────────────────────────────────
-function validate(id, check) {
-  const el = document.getElementById(id);
-  const ok = check(el.value);
-  el.classList.toggle('error', !ok);
-  return ok;
-}
-
-function submitPickup(e) {
-  e.preventDefault();
-  const minDate = today();
-  let valid = true;
-  valid &= validate('f-name', v => v.trim().length >= 2);
-  valid &= validate('f-phone', v => /^\d{10}$/.test(v.trim()));
-  valid &= validate('f-area', v => v !== '');
-  valid &= validate('f-type', v => v !== '');
-  valid &= validate('f-qty',  v => parseFloat(v) >= 0.5);
-  valid &= validate('f-date', v => v >= minDate);
-  valid &= validate('f-time', v => v !== '');
-  valid &= validate('f-address', v => v.trim().length >= 5);
-  if (!valid) { showToast('Please fill in all required fields correctly.', 'error'); return; }
-
-  const req = {
-    id: genId(),
-    name: document.getElementById('f-name').value.trim(),
-    phone: document.getElementById('f-phone').value.trim(),
-    area: document.getElementById('f-area').value,
-    address: document.getElementById('f-address').value.trim(),
-    type: document.getElementById('f-type').value,
-    qty: parseFloat(document.getElementById('f-qty').value),
-    date: document.getElementById('f-date').value,
-    time: document.getElementById('f-time').value,
-    status: 'Pending'
-  };
-  requests.push(req);
-  showToast(`Pickup request ${req.id} submitted successfully!`);
-  document.getElementById('pickup-form').reset();
-  ['f-name','f-phone','f-area','f-type','f-qty','f-date','f-time','f-address']
-    .forEach(id => document.getElementById(id).classList.remove('error'));
-}
-
-// ─────────────────────────────────────────────
-// TRACK REQUESTS
-// ─────────────────────────────────────────────
-function trackRequests() {
-  const phone = document.getElementById('t-phone').value.trim();
-  const wrap = document.getElementById('track-results');
-  if (!/^\d{10}$/.test(phone)) {
-    showToast('Enter a valid 10-digit phone number.', 'error');
-    return;
-  }
-  const found = requests.filter(r => r.phone === phone);
-  if (!found.length) {
-    wrap.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>No requests found for this number.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = `
+  <!-- NGO Partners -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-building-ngo"></i> Registered NGO Partners</div>
     <div class="table-wrap">
       <table>
-        <thead><tr>
-          <th>ID</th><th>Area</th><th>E-Waste Type</th><th>Qty (kg)</th><th>Preferred Date</th><th>Status</th>
-        </tr></thead>
+        <thead><tr><th>NGO ID</th><th>Name</th><th>Contact</th><th>District</th></tr></thead>
         <tbody>
-          ${found.map(r => `<tr class="${r.status==='Collected'?'collected':''}">
-            <td><strong>${r.id}</strong></td>
-            <td>${r.area}</td>
-            <td>${r.type}</td>
-            <td>${r.qty}</td>
-            <td>${r.date}</td>
-            <td>${statusBadge(r.status)}</td>
-          </tr>`).join('')}
+          <tr><td><strong>NGO-01</strong></td><td>GreenEarth Foundation</td><td style="color:var(--accent-cyan);">9500001111</td><td>Chengalpattu</td></tr>
+          <tr><td><strong>NGO-02</strong></td><td>EcoRevive Tamil Nadu</td><td style="color:var(--accent-cyan);">9500002222</td><td>Kancheepuram</td></tr>
+          <tr><td><strong>NGO-03</strong></td><td>CleanCycle Chennai</td><td style="color:var(--accent-cyan);">9500003333</td><td>Chennai</td></tr>
         </tbody>
       </table>
-    </div>`;
-}
-
-function statusBadge(s) {
-  return s === 'Collected'
-    ? `<span class="badge badge-collected"><i class="fa-solid fa-circle-check"></i>${s}</span>`
-    : `<span class="badge badge-pending"><i class="fa-solid fa-clock"></i>${s}</span>`;
-}
-
-// ─────────────────────────────────────────────
-// ADMIN: RENDER ALL
-// ─────────────────────────────────────────────
-function renderAdmin() {
-  renderSummaryCards();
-  renderAdminTable();
-  renderImpactChart();
-}
-
-function renderSummaryCards() {
-  const total = requests.length;
-  const pending = requests.filter(r => r.status === 'Pending').length;
-  const collected = requests.filter(r => r.status === 'Collected').length;
-  const totalKg = requests.reduce((s,r) => s + r.qty, 0).toFixed(1);
-  document.getElementById('summary-grid').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-icon cyan"><i class="fa-solid fa-inbox"></i></div>
-      <div class="summary-text"><div class="summary-value">${total}</div><div class="summary-label">Total Requests</div></div>
     </div>
-    <div class="summary-card">
-      <div class="summary-icon amber"><i class="fa-solid fa-clock"></i></div>
-      <div class="summary-text"><div class="summary-value">${pending}</div><div class="summary-label">Pending</div></div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-icon green"><i class="fa-solid fa-circle-check"></i></div>
-      <div class="summary-text"><div class="summary-value">${collected}</div><div class="summary-label">Collected</div></div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-icon red"><i class="fa-solid fa-weight-scale"></i></div>
-      <div class="summary-text"><div class="summary-value">${totalKg} kg</div><div class="summary-label">Total E-Waste</div></div>
-    </div>
-  `;
-}
+  </div>
 
-function renderAdminTable() {
-  const sorted = [...requests].sort((a,b) => priorityScore(b) - priorityScore(a));
-  document.getElementById('admin-table-wrap').innerHTML = `
-    <table>
-      <thead><tr>
-        <th>ID</th><th>Name</th><th>Area</th><th>E-Waste Type</th>
-        <th>Qty (kg)</th><th>Preferred Date</th><th>Priority Score</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        ${sorted.map(r => `<tr class="${r.status==='Collected'?'collected':''}">
-          <td><strong>${r.id}</strong></td>
-          <td>${r.name}</td>
-          <td><i class="fa-solid fa-location-dot" style="color:var(--accent-cyan);margin-right:4px;font-size:0.75rem;"></i>${r.area}</td>
-          <td>${r.type}</td>
-          <td>${r.qty}</td>
-          <td>${r.date}</td>
-          <td><span class="badge badge-score">${priorityScore(r)}</span></td>
-          <td>${statusBadge(r.status)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
-}
+  <!-- Driver Availability -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-id-card"></i> Driver Availability Panel</div>
+    <div id="driver-avail"></div>
+  </div>
 
-// ─────────────────────────────────────────────
-// ROUTE PLANNING
-// ─────────────────────────────────────────────
-function planRoutes() {
-  const numDrivers = parseInt(document.getElementById('p-drivers').value) || 3;
-  const capacity   = parseFloat(document.getElementById('p-capacity').value) || 200;
+  <!-- All Requests + Assign -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-table-list"></i> All Requests — Priority Sorted &amp; Assign</div>
+    <div class="table-wrap" id="ngo-table-wrap"></div>
+  </div>
 
-  const pending = [...requests]
-    .filter(r => r.status === 'Pending')
-    .sort((a,b) => priorityScore(b) - priorityScore(a));
-
-  if (!pending.length) {
-    document.getElementById('route-output').innerHTML =
-      `<div class="empty-state"><i class="fa-solid fa-truck-fast"></i><p>No pending requests to plan routes for.</p></div>`;
-    return;
-  }
-
-  const unassigned = new Set(pending.map(r => r.id));
-  const routes = [];
-  assignedIds = new Set();
-
-  for (let d = 0; d < numDrivers; d++) {
-    if (!unassigned.size) break;
-    const stops = [];
-    let load = 0;
-    let lastPos = CENTER;
-
-    // first stop: highest priority unassigned
-    const first = pending.find(r => unassigned.has(r.id));
-    if (!first) break;
-    if (first.qty <= capacity) {
-      stops.push(first);
-      load += first.qty;
-      unassigned.delete(first.id);
-      assignedIds.add(first.id);
-      lastPos = AREAS[first.area];
-    }
-
-    // greedy nearest neighbour
-    let changed = true;
-    while (changed && unassigned.size) {
-      changed = false;
-      let bestReq = null, bestDist = Infinity;
-      for (const rid of unassigned) {
-        const r = requests.find(x => x.id === rid);
-        if (load + r.qty > capacity) continue;
-        const dist = haversine(lastPos, AREAS[r.area]);
-        if (dist < bestDist) { bestDist = dist; bestReq = r; }
-      }
-      if (bestReq) {
-        stops.push(bestReq);
-        load += bestReq.qty;
-        unassigned.delete(bestReq.id);
-        assignedIds.add(bestReq.id);
-        lastPos = AREAS[bestReq.area];
-        changed = true;
-      }
-    }
-
-    // calculate total km (center → stops → center)
-    let km = 0;
-    let cur = CENTER;
-    for (const s of stops) {
-      km += haversine(cur, AREAS[s.area]);
-      cur = AREAS[s.area];
-    }
-    km += haversine(cur, CENTER);
-    routes.push({ driver: d+1, stops, load, km: km.toFixed(1) });
-  }
-
-  // render
-  let html = `<div class="route-grid">`;
-  for (const route of routes) {
-    const flowParts = [`<span class="route-center"><i class="fa-solid fa-warehouse"></i> Center</span>`];
-    route.stops.forEach((s,i) => {
-      flowParts.push(`<span class="route-arrow">→</span>`);
-      flowParts.push(`<span class="route-stop">${s.area}</span>`);
-    });
-    flowParts.push(`<span class="route-arrow">→</span>`);
-    flowParts.push(`<span class="route-center"><i class="fa-solid fa-warehouse"></i> Center</span>`);
-
-    html += `
-    <div class="route-card">
-      <div class="route-card-header">
-        <div class="driver-avatar">D${route.driver}</div>
-        <div>
-          <div style="font-weight:700;">Driver ${route.driver}</div>
-          <div style="font-size:0.78rem;color:var(--text-secondary);">${route.stops.length} stop(s)</div>
-        </div>
+  <!-- Route Planner -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-route"></i> Pickup Route Planner</div>
+    <div class="planner-row">
+      <div class="form-group">
+        <label>Number of Drivers</label>
+        <input type="number" id="p-drivers" min="1" max="10" value="3"/>
       </div>
-      <div class="route-meta">
-        <div class="route-meta-item">Load: <span>${route.load.toFixed(1)} kg / ${document.getElementById('p-capacity').value} kg</span></div>
-        <div class="route-meta-item">Distance: <span>${route.km} km</span></div>
+      <div class="form-group">
+        <label>Truck Capacity (kg)</label>
+        <input type="number" id="p-capacity" min="50" max="2000" step="50" value="200"/>
       </div>
-      <div class="route-stops" style="margin-bottom:14px;">${flowParts.join('')}</div>
-      <div>
-        ${route.stops.map((s,i) => `
-          <div class="stop-detail">
-            <div class="stop-detail-left">
-              <div><span class="stop-idx">${i+1}</span><strong>${s.area}</strong> &nbsp;·&nbsp; <small style="color:var(--text-secondary);">${s.id}</small></div>
-              <div style="font-size:0.77rem;color:var(--text-secondary);padding-left:26px;">${s.address.substring(0,45)}${s.address.length>45?'…':''}</div>
-            </div>
-            <div style="font-size:0.82rem;color:var(--accent-amber);font-weight:700;">${s.qty} kg</div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-  }
-  html += `</div>`;
-  document.getElementById('route-output').innerHTML = html;
-  showToast(`Routes planned for ${routes.length} driver(s)!`);
-}
-
-// ─────────────────────────────────────────────
-// MARK COLLECTED
-// ─────────────────────────────────────────────
-function markCollected() {
-  if (!assignedIds.size) {
-    showToast('Plan routes first to assign pickups.', 'error'); return;
-  }
-  let count = 0;
-  requests.forEach(r => {
-    if (assignedIds.has(r.id) && r.status === 'Pending') {
-      r.status = 'Collected'; count++;
-    }
-  });
-  assignedIds.clear();
-  renderAdmin();
-  showToast(`${count} request(s) marked as Collected!`);
-}
-
-// ─────────────────────────────────────────────
-// IMPACT CHART
-// ─────────────────────────────────────────────
-let impactChart = null;
-function renderImpactChart() {
-  const labels = [];
-  const uncollected = []; // starts high, decreasing
-  const collected   = []; // starts low, increasing
-  // Simulate 7 days ending today
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    labels.push(d.toLocaleDateString('en-IN', { weekday:'short', month:'short', day:'numeric' }));
-  }
-  // Realistic demo data
-  const ucData = [340, 295, 278, 242, 198, 152, 118];
-  const cData  = [40,   92, 135, 180, 230, 284, 330];
-
-  const ctx = document.getElementById('impact-chart').getContext('2d');
-  if (impactChart) { impactChart.destroy(); }
-
-  impactChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Uncollected E-Waste (kg)',
-          data: ucData,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245,158,11,0.08)',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#f59e0b',
-          pointRadius: 5,
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Collected E-Waste (kg)',
-          data: cData,
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34,197,94,0.08)',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#22c55e',
-          pointRadius: 5,
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { color: '#94a3b8', font: { size: 12 } }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(17,24,39,0.95)',
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1,
-          titleColor: '#f1f5f9',
-          bodyColor: '#94a3b8'
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
-      }
-    }
-  });
-
-  // Stats
-  const totalGen = ucData[6] + cData[6];
-  const collRate = Math.round(cData[6] / totalGen * 100);
-  const peakUnc  = Math.max(...ucData);
-  const lastUnc  = ucData[6];
-  const reduction = Math.round((peakUnc - lastUnc) / peakUnc * 100);
-
-  document.getElementById('impact-stats').innerHTML = `
-    <div class="impact-stat">
-      <div class="impact-stat-label"><i class="fa-solid fa-percent"></i> Collection Rate</div>
-      <div class="impact-stat-value green">${collRate}%</div>
-      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:4px;">of generated e-waste collected this week</div>
+      <button class="btn btn-cyan" onclick="planNGORoutes()">
+        <i class="fa-solid fa-map-location-dot"></i> Plan Routes
+      </button>
+      <button class="btn btn-amber" onclick="markNGOCollected()">
+        <i class="fa-solid fa-circle-check"></i> Mark Planned as Collected
+      </button>
     </div>
-    <div class="impact-stat">
-      <div class="impact-stat-label"><i class="fa-solid fa-arrow-trend-down"></i> Reduction from Peak</div>
-      <div class="impact-stat-value cyan">${reduction}%</div>
-      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:4px;">uncollected waste reduced from peak (${peakUnc} kg → ${lastUnc} kg)</div>
-    </div>
-    <div class="impact-stat">
-      <div class="impact-stat-label"><i class="fa-solid fa-recycle"></i> Total Recovered</div>
-      <div class="impact-stat-value green">${cData[6]} kg</div>
-      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:4px;">e-waste safely recovered &amp; processed</div>
-    </div>
-  `;
-}
+    <div id="ngo-route-output"></div>
+  </div>
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Set min date for form
-  document.getElementById('f-date').min = today();
-  // Clear phone input errors on input
-  document.getElementById('t-phone').addEventListener('input', () => {
-    document.getElementById('t-phone').classList.remove('error');
-  });
-});
-</script>
+  <!-- Impact Chart -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-chart-line"></i> Impact Wave — Last 7 Days</div>
+    <div class="chart-wrap">
+      <canvas id="ngo-impact-chart"></canvas>
+    </div>
+    <div class="impact-stats" id="ngo-impact-stats"></div>
+  </div>
+
+</div><!-- /panel-ngo -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     DRIVER VIEW
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-driver" class="hidden">
+
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-truck-fast"></i> My Assigned Jobs</div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:16px;">
+      Demo driver: <strong>Arjun Selvam (DRV-01)</strong>. Use Accept → Picked Up → Delivered to progress each job.
+      Status changes are reflected in real-time on the citizen tracking view.
+    </p>
+    <div id="driver-jobs"></div>
+  </div>
+
+</div><!-- /panel-driver -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     DISTRICT AUTHORITY
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-authority" class="hidden">
+
+  <!-- District Selector -->
+  <div class="district-bar">
+    <label><i class="fa-solid fa-map"></i> District:</label>
+    <select id="district-select" onchange="onDistrictChange()">
+      <option value="Chengalpattu">Chengalpattu</option>
+      <option value="Kancheepuram">Kancheepuram</option>
+      <option value="Chennai">Chennai</option>
+    </select>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid" id="auth-summary"></div>
+
+  <!-- Facility Verification -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-shield-check"></i> Facility Verification</div>
+    <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:16px;">
+      Enter the <strong>actual weighed kg</strong> for each delivered batch. Only verified weights count toward rewards and the leaderboard.
+    </p>
+    <div id="verify-wrap"></div>
+  </div>
+
+  <!-- Impact Counters -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-leaf"></i> Impact Counters <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:400;">(Estimated)</span></div>
+    <div class="impact-stats" id="impact-counters"></div>
+  </div>
+
+  <!-- Area-wise bar chart -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-chart-simple"></i> Area-wise kg Collected</div>
+    <div id="area-stat-bars" style="margin-bottom:16px;"></div>
+    <div class="chart-wrap"><canvas id="chart-area"></canvas></div>
+  </div>
+
+  <!-- Two-column charts -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;margin-bottom:24px;">
+    <div class="glass-card" style="margin-bottom:0;">
+      <div class="section-title"><i class="fa-solid fa-chart-pie"></i> kg by E-Waste Type</div>
+      <div class="chart-wrap"><canvas id="chart-type"></canvas></div>
+    </div>
+    <div class="glass-card" style="margin-bottom:0;">
+      <div class="section-title"><i class="fa-solid fa-chart-line"></i> Pickups per Week</div>
+      <div class="chart-wrap"><canvas id="chart-weekly"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /panel-authority -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     LEADERBOARD & REWARDS
+     ════════════════════════════════════════════════════════════ -->
+<div id="panel-leaderboard" class="hidden">
+
+  <!-- Reward Cycle Info -->
+  <div class="cycle-box" id="cycle-box"></div>
+
+  <!-- Leaderboard -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-trophy"></i> Top Contributors</div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+      <label style="font-size:0.8rem;color:var(--text-secondary);">Filter by Area:</label>
+      <select id="lb-area-filter" onchange="onLBAreaChange()" style="background:rgba(255,255,255,0.07);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-primary);padding:7px 12px;font-size:0.85rem;cursor:pointer;outline:none;">
+        <option value="">All Areas</option>
+        <option value="Chengalpattu Town">Chengalpattu Town</option>
+        <option value="Maraimalai Nagar">Maraimalai Nagar</option>
+        <option value="Vandalur">Vandalur</option>
+        <option value="Guduvanchery">Guduvanchery</option>
+        <option value="Tambaram">Tambaram</option>
+        <option value="Perungalathur">Perungalathur</option>
+        <option value="Pallavaram">Pallavaram</option>
+        <option value="Urapakkam">Urapakkam</option>
+        <option value="Singaperumal Koil">Singaperumal Koil</option>
+        <option value="Kancheepuram">Kancheepuram</option>
+      </select>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:12px;">
+      <i class="fa-solid fa-info-circle" style="color:var(--accent-cyan);"></i>
+      Rankings based on <strong>facility-verified kg</strong> only. Nicknames shown — no full names or addresses. 1 reward per household per cycle.
+    </p>
+    <div id="lb-wrap"></div>
+  </div>
+
+  <!-- Previous Winners -->
+  <div class="glass-card">
+    <div class="section-title"><i class="fa-solid fa-medal"></i> Previous Winners <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:400;">(Demo data)</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cycle</th><th>Area</th><th>Nickname</th><th>Verified kg</th><th>Prize</th></tr></thead>
+        <tbody id="prev-winners-wrap"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /panel-leaderboard -->
+
+</div><!-- /main -->
+
+<script src="script.js"></script>
 </body>
 </html>
